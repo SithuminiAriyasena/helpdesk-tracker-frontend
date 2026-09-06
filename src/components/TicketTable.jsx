@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import StatusBadge from './StatusBadge.jsx'
 import PriorityBadge from './PriorityBadge.jsx'
-import { ChevronDown, Flame, Minus, ArrowDown, Trash2 } from 'lucide-react'
+import { ChevronDown, Flame, Minus, ArrowDown, Trash2, AlertTriangle } from 'lucide-react'
 
 const PRIORITY_CFG = {
   High:   { dot: 'bg-rose-500',    pill: 'text-rose-600 bg-rose-50 ring-rose-200',       option: 'text-rose-600 hover:bg-rose-50',     icon: Flame    },
@@ -100,6 +100,8 @@ function StatusPicker({ value, onChange }) {
 }
 
 export default function TicketTable({ tickets, showRequester = false, onStatusChange, onPriorityChange, onDeleteTicket }) {
+  const [ticketToDelete, setTicketToDelete] = useState(null)
+
   if (!tickets.length) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl bg-surface py-16 text-center shadow-card border border-line">
@@ -115,79 +117,115 @@ export default function TicketTable({ tickets, showRequester = false, onStatusCh
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-line">
-      <div className="overflow-x-auto">
-        <table className="min-w-[640px] w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-line bg-canvas text-xs font-semibold uppercase tracking-wider text-ink-light">
-              {onDeleteTicket && <th className="w-10 px-4 py-3.5"></th>}
-              <th className="px-5 py-3.5">Ticket</th>
-              <th className="px-5 py-3.5">Subject</th>
-              {showRequester && <th className="px-5 py-3.5">Requester</th>}
-              <th className="px-5 py-3.5">Category</th>
-              <th className="px-5 py-3.5">Priority</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5">Created</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {tickets.map((t) => (
-              <tr key={t.id} className="transition-colors hover:bg-canvas/50">
-                {onDeleteTicket && (
-                  <td className="whitespace-nowrap px-4 py-4">
-                    <button
-                      onClick={() => onDeleteTicket(t.id)}
-                      className="text-ink-light hover:text-red-500 transition-colors"
-                      title="Delete ticket"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                )}
-                <td className="whitespace-nowrap px-5 py-4">
-                  <span className="rounded-lg bg-brand-500/10 px-2.5 py-1 font-mono text-xs font-bold text-brand-500">
-                    {t.id}
-                  </span>
-                </td>
-                <td className="max-w-xs px-5 py-4">
-                  <span className="font-medium text-ink">{t.subject}</span>
-                </td>
-                {showRequester && (
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-[10px] font-bold text-white shadow-sm">
-                        {t.requester.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                      </div>
-                      <span className="text-ink">{t.requester}</span>
-                    </div>
-                  </td>
-                )}
-                <td className="px-5 py-4">
-                  <span className="rounded-lg bg-canvas px-2 py-0.5 text-xs font-medium text-ink-light border border-line">
-                    {t.category}
-                  </span>
-                </td>
-                <td className="px-5 py-4">
-                  {onPriorityChange ? (
-                    <PriorityPicker value={t.priority} onChange={(val) => onPriorityChange(t.id, val)} />
-                  ) : (
-                    <PriorityBadge priority={t.priority} />
-                  )}
-                </td>
-                <td className="px-5 py-4">
-                  {onStatusChange ? (
-                    <StatusPicker value={t.status} onChange={(val) => onStatusChange(t.id, val)} />
-                  ) : (
-                    <StatusBadge status={t.status} />
-                  )}
-                </td>
-                <td className="whitespace-nowrap px-5 py-4 text-xs text-ink-light">{t.createdAt}</td>
+    <>
+      {/* Confirmation Modal */}
+      {ticketToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-2xl border border-line animate-in fade-in zoom-in-95">
+            <div className="flex items-center gap-3 text-rose-500 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10">
+                <AlertTriangle size={20} />
+              </div>
+              <h3 className="font-display text-base font-bold text-ink">Are you sure you want to delete?</h3>
+            </div>
+            <p className="text-sm text-ink-light mb-6">
+              Do you really want to delete ticket <strong className="text-ink font-mono">{ticketToDelete.id}</strong> ({ticketToDelete.subject})? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                onClick={() => setTicketToDelete(null)}
+                className="rounded-lg border border-line bg-surface px-4 py-2 text-xs font-semibold text-ink transition-colors hover:bg-canvas"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  onDeleteTicket(ticketToDelete.id)
+                  setTicketToDelete(null)
+                }}
+                className="rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-rose-700 shadow-sm"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-line">
+        <div className="overflow-x-auto">
+          <table className="min-w-[640px] w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-line bg-canvas text-xs font-semibold uppercase tracking-wider text-ink-light">
+                {onDeleteTicket && <th className="w-10 px-4 py-3.5"></th>}
+                <th className="px-5 py-3.5">Ticket</th>
+                <th className="px-5 py-3.5">Subject</th>
+                {showRequester && <th className="px-5 py-3.5">Requester</th>}
+                <th className="px-5 py-3.5">Category</th>
+                <th className="px-5 py-3.5">Priority</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5">Created</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {tickets.map((t) => (
+                <tr key={t.id} className="transition-colors hover:bg-canvas/50">
+                  {onDeleteTicket && (
+                    <td className="whitespace-nowrap px-4 py-4">
+                      <button
+                        onClick={() => setTicketToDelete(t)}
+                        className="text-ink-light hover:text-red-500 transition-colors"
+                        title="Delete ticket"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  )}
+                  <td className="whitespace-nowrap px-5 py-4">
+                    <span className="rounded-lg bg-brand-500/10 px-2.5 py-1 font-mono text-xs font-bold text-brand-500">
+                      {t.id}
+                    </span>
+                  </td>
+                  <td className="max-w-xs px-5 py-4">
+                    <span className="font-medium text-ink">{t.subject}</span>
+                  </td>
+                  {showRequester && (
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-[10px] font-bold text-white shadow-sm">
+                          {t.requester.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                        </div>
+                        <span className="text-ink">{t.requester}</span>
+                      </div>
+                    </td>
+                  )}
+                  <td className="px-5 py-4">
+                    <span className="rounded-lg bg-canvas px-2 py-0.5 text-xs font-medium text-ink-light border border-line">
+                      {t.category}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    {onPriorityChange ? (
+                      <PriorityPicker value={t.priority} onChange={(val) => onPriorityChange(t.id, val)} />
+                    ) : (
+                      <PriorityBadge priority={t.priority} />
+                    )}
+                  </td>
+                  <td className="px-5 py-4">
+                    {onStatusChange ? (
+                      <StatusPicker value={t.status} onChange={(val) => onStatusChange(t.id, val)} />
+                    ) : (
+                      <StatusBadge status={t.status} />
+                    )}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-xs text-ink-light">{t.createdAt}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
