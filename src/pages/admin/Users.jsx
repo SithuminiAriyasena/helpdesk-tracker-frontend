@@ -12,14 +12,11 @@ export default function AdminUsers() {
   const { users, trashUsers, deleteUser, restoreUser, permanentlyDeleteUser, emptyTrash, tickets } = useTickets()
   const { user: currentUser } = useAuth()
   const [activeTab, setActiveTab] = useState('active') // 'active' | 'trash'
+  const [userToTrash, setUserToTrash] = useState(null)
   const [userToDelete, setUserToDelete] = useState(null)
   const [confirmEmptyTrash, setConfirmEmptyTrash] = useState(false)
 
   const ticketCount = (name) => tickets.filter((t) => t.requester === name).length
-
-  const handleDelete = (userId) => {
-    deleteUser(userId)
-  }
 
   return (
     <Layout title="Users" subtitle="Everyone with access to the helpdesk">
@@ -118,6 +115,40 @@ export default function AdminUsers() {
         </div>
       )}
 
+      {/* Confirmation Modal for Active User Deletion */}
+      {userToTrash && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-2xl border border-line animate-in fade-in zoom-in-95">
+            <div className="flex items-center gap-3 text-rose-500 mb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10">
+                <AlertTriangle size={20} />
+              </div>
+              <h3 className="font-display text-base font-bold text-ink">Are you sure you want to delete?</h3>
+            </div>
+            <p className="text-sm text-ink-light mb-6">
+              Do you really want to delete user <strong className="text-ink">{userToTrash.name}</strong>? This user will be moved to trash.
+            </p>
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                onClick={() => setUserToTrash(null)}
+                className="rounded-lg border border-line bg-surface px-4 py-2 text-xs font-semibold text-ink transition-colors hover:bg-canvas"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deleteUser(userToTrash.id)
+                  setUserToTrash(null)
+                }}
+                className="rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-rose-700 shadow-sm"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Modal for Permanent User Deletion */}
       {userToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -126,10 +157,10 @@ export default function AdminUsers() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10">
                 <AlertTriangle size={20} />
               </div>
-              <h3 className="font-display text-base font-bold text-ink">Delete Permanently?</h3>
+              <h3 className="font-display text-base font-bold text-ink">Are you sure you want to delete?</h3>
             </div>
             <p className="text-sm text-ink-light mb-6">
-              Are you sure you want to permanently delete <strong>{userToDelete.name}</strong>? This cannot be restored.
+              Are you sure you want to permanently delete <strong>{userToDelete.name}</strong>? This action cannot be undone.
             </p>
             <div className="flex items-center justify-end gap-2.5">
               <button
@@ -145,7 +176,7 @@ export default function AdminUsers() {
                 }}
                 className="rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-rose-700 shadow-sm"
               >
-                Delete Permanently
+                OK
               </button>
             </div>
           </div>
@@ -202,7 +233,7 @@ export default function AdminUsers() {
                       <td className="px-5 py-3.5 font-mono text-ink">{ticketCount(u.name)}</td>
                       <td className="px-5 py-3.5 text-right">
                         <button
-                          onClick={() => handleDelete(u.id)}
+                          onClick={() => setUserToTrash(u)}
                           className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-ink-light hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                           title="Delete user (move to trash)"
                         >
