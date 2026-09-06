@@ -228,16 +228,28 @@ export default function TicketTable({ tickets, showRequester = false, onStatusCh
                   setReplySending(true)
                   // Update status via provided handler for optimistic UI
                   if (onStatusChange) onStatusChange(replyTicket.id, replyStatus)
-                  // Also send assignedTo (email) to backend
+
                   try {
                     const dbId = replyTicket.dbId || replyTicket.id.replace('TCK-', '')
+                    // Update ticket status/assignee in backend
                     await apiFetch(`/api/tickets/${dbId}`, {
                       method: 'PUT',
                       body: JSON.stringify({ status: replyStatus, assignedTo: replyEmail })
                     })
+
+                    // Send email to user using the new email endpoint
+                    const resp = await apiFetch('/api/tickets/reply', {
+                      method: 'POST',
+                      body: JSON.stringify({ email: replyEmail, ticketId: replyTicket.id, description: replyDescription })
+                    })
+
+                    if (!resp.ok) {
+                      const err = await resp.json().catch(() => ({ message: 'Unknown error' }))
+                      throw new Error(err.message || 'Failed to send email')
+                    }
+
                     // indicate success
                     setReplySent(true)
-                    // keep modal open briefly to show success then close
                     setTimeout(() => {
                       setReplySending(false)
                       setReplySent(false)
@@ -248,6 +260,7 @@ export default function TicketTable({ tickets, showRequester = false, onStatusCh
                   } catch (err) {
                     console.error('Failed to send reply/update ticket', err)
                     setReplySending(false)
+                    alert('Failed to send reply: ' + (err.message || err))
                   }
                 }}
                 disabled={replySending}
