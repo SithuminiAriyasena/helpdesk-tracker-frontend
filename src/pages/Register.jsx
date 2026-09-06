@@ -55,7 +55,7 @@ export default function Register() {
       const res = await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.message || 'Failed to create account')
+        setError(data.error || data.message || 'Failed to create account')
         setLoading(false)
         return
       }
