@@ -39,9 +39,27 @@ export default function Profile() {
       }
     }
 
-    const updated = { ...user, name, avatar: avatarData, department }
-    // update locally (persisted to localStorage via setSession)
-    setSession(updated)
+    // Try to persist to backend
+    try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || 'https://helpdesk-tracker-backend.onrender.com'
+      const res = await fetch(`${apiBase}/api/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('helpdesk_token')}` },
+        body: JSON.stringify({ name, department, avatar: avatarData }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setSession(data.user)
+      } else {
+        console.error('Failed to save profile', await res.text())
+        // fallback to local update
+        setSession({ ...user, name, department, avatar: avatarData })
+      }
+    } catch (err) {
+      console.error('Network error saving profile', err)
+      setSession({ ...user, name, department, avatar: avatarData })
+    }
+
     setEditing(false)
   }
 
