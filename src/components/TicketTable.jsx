@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import StatusBadge from './StatusBadge.jsx'
 import PriorityBadge from './PriorityBadge.jsx'
-import { ChevronDown, Flame, Minus, ArrowDown, Trash2, AlertTriangle } from 'lucide-react'
+import { ChevronDown, Flame, Minus, ArrowDown, Trash2, AlertTriangle, CornerUpLeft, CheckCircle2 } from 'lucide-react'
+import { apiFetch } from '../api.js'
 
 const PRIORITY_CFG = {
   High:   { dot: 'bg-rose-500',    pill: 'text-rose-600 bg-rose-50 ring-rose-200',       option: 'text-rose-600 hover:bg-rose-50',     icon: Flame    },
@@ -101,6 +102,12 @@ function StatusPicker({ value, onChange }) {
 
 export default function TicketTable({ tickets, showRequester = false, onStatusChange, onPriorityChange, onDeleteTicket }) {
   const [ticketToDelete, setTicketToDelete] = useState(null)
+  const [replyTicket, setReplyTicket] = useState(null)
+  const [replyStatus, setReplyStatus] = useState('In Progress')
+  const [replyEmail, setReplyEmail] = useState('')
+  const [replyDescription, setReplyDescription] = useState('')
+  const [replySending, setReplySending] = useState(false)
+  const [replySent, setReplySent] = useState(false)
 
   if (!tickets.length) {
     return (
@@ -152,35 +159,135 @@ export default function TicketTable({ tickets, showRequester = false, onStatusCh
         </div>
       )}
 
+      {/* Reply Modal */}
+      {replyTicket && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-surface p-6 shadow-2xl border border-line animate-in fade-in zoom-in-95">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-display text-lg font-bold text-ink">Reply to ticket</h3>
+                <div className="mt-2 text-sm text-ink-light flex items-center gap-3">
+                  <span className="rounded-lg bg-brand-500/10 px-2 py-0.5 font-mono text-xs font-bold text-brand-500">{replyTicket.id}</span>
+                  <span className="text-ink">{replyTicket.subject}</span>
+                </div>
+              </div>
+              <button onClick={() => setReplyTicket(null)} className="text-ink-light hover:text-ink">
+                ✕
+              </button>
+            </div>
+
+            {!replySent ? (
+            <>
+            <div className="mt-4 grid grid-cols-1 gap-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-ink">Status</label>
+                <select
+                  value={replyStatus}
+                  onChange={(e) => setReplyStatus(e.target.value)}
+                  className="w-full rounded-lg border border-line px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand-500 bg-surface"
+                >
+                  <option>Open</option>
+                  <option>In Progress</option>
+                  <option>Resolved</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-ink">User email</label>
+                <input
+                  value={replyEmail}
+                  onChange={(e) => setReplyEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  className="w-full rounded-lg border border-line px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand-500 bg-surface"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-ink">Description</label>
+                <textarea
+                  rows={5}
+                  value={replyDescription}
+                  onChange={(e) => setReplyDescription(e.target.value)}
+                  placeholder="Describe the update or solution for this ticket"
+                  className="w-full resize-none rounded-lg border border-line px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand-500 bg-surface"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => { if (!replySending) setReplyTicket(null) }}
+                disabled={replySending}
+                className="rounded-lg border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink-light transition-colors hover:bg-canvas disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (replySending) return
+                  setReplySending(true)
+                  // Update status via provided handler for optimistic UI
+                  if (onStatusChange) onStatusChange(replyTicket.id, replyStatus)
+                  // Also send assignedTo (email) to backend
+                  try {
+                    const dbId = replyTicket.dbId || replyTicket.id.replace('TCK-', '')
+                    await apiFetch(`/api/tickets/${dbId}`, {
+                      method: 'PUT',
+                      body: JSON.stringify({ status: replyStatus, assignedTo: replyEmail })
+                    })
+                    // indicate success
+                    setReplySent(true)
+                    // keep modal open briefly to show success then close
+                    setTimeout(() => {
+                      setReplySending(false)
+                      setReplySent(false)
+                      setReplyTicket(null)
+                      setReplyEmail('')
+                      setReplyDescription('')
+                    }, 1100)
+                  } catch (err) {
+                    console.error('Failed to send reply/update ticket', err)
+                    setReplySending(false)
+                  }
+                }}
+                disabled={replySending}
+                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-60"
+              >
+                {replySending ? 'Sending…' : 'Send'}
+              </button>
+            </div>
+            </>
+            ) : (
+              <div className="mt-6 flex flex-col items-center gap-3 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
+                  <CheckCircle2 size={28} className="text-emerald-500" />
+                </div>
+                <p className="font-display text-base font-semibold text-ink">Sent successfully</p>
+                <p className="text-sm text-ink-light">The ticket update was sent.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-line">
         <div className="overflow-x-auto">
           <table className="min-w-[640px] w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-line bg-canvas text-xs font-semibold uppercase tracking-wider text-ink-light">
-                {onDeleteTicket && <th className="w-10 px-4 py-3.5"></th>}
-                <th className="px-5 py-3.5">Ticket</th>
+                <tr className="border-b border-line bg-canvas text-xs font-semibold uppercase tracking-wider text-ink-light">
+                  <th className="px-5 py-3.5">Ticket</th>
                 <th className="px-5 py-3.5">Subject</th>
                 {showRequester && <th className="px-5 py-3.5">Requester</th>}
                 <th className="px-5 py-3.5">Category</th>
                 <th className="px-5 py-3.5">Priority</th>
                 <th className="px-5 py-3.5">Status</th>
                 <th className="px-5 py-3.5">Created</th>
+                <th className="w-16 px-4 py-3.5">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {tickets.map((t) => (
                 <tr key={t.id} className="transition-colors hover:bg-canvas/50">
-                  {onDeleteTicket && (
-                    <td className="whitespace-nowrap px-4 py-4">
-                      <button
-                        onClick={() => setTicketToDelete(t)}
-                        className="text-ink-light hover:text-red-500 transition-colors"
-                        title="Delete ticket"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  )}
                   <td className="whitespace-nowrap px-5 py-4">
                     <span className="rounded-lg bg-brand-500/10 px-2.5 py-1 font-mono text-xs font-bold text-brand-500">
                       {t.id}
@@ -219,6 +326,25 @@ export default function TicketTable({ tickets, showRequester = false, onStatusCh
                     )}
                   </td>
                   <td className="whitespace-nowrap px-5 py-4 text-xs text-ink-light">{t.createdAt}</td>
+                  <td className="whitespace-nowrap px-4 py-4 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => { setReplyTicket(t); setReplyStatus(t.status); setReplyEmail(''); setReplyDescription('') }}
+                        className="text-ink-light hover:text-ink transition-colors"
+                        title="Reply"
+                      >
+                        <CornerUpLeft size={16} />
+                      </button>
+                      <button
+                        onClick={() => setTicketToDelete(t)}
+                        className="text-ink-light hover:text-red-500 transition-colors"
+                        title="Delete ticket"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

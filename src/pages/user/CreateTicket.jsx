@@ -31,11 +31,8 @@ export default function CreateTicket() {
 
   const handleCancel = () => {
     setCancelled(true)
-    if (window.history.length > 2) {
-      navigate(-1)
-    } else {
-      navigate('/dashboard')
-    }
+    // Always go back to the dashboard instead of navigating to previous section
+    navigate('/dashboard')
   }
 
   return (

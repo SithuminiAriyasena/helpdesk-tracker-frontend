@@ -11,6 +11,7 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import AllTickets from './pages/admin/AllTickets.jsx'
 import AdminUsers from './pages/admin/Users.jsx';
 import GoogleCallback from './pages/GoogleCallback.jsx';
+import Register from './pages/Register.jsx';
 
 function ProtectedRoute({ role, children }) {
   const { user } = useAuth()
@@ -34,6 +35,7 @@ export default function App() {
         path="/login"
         element={<Login />}
       />
+      <Route path="/register" element={<Register />} />
       <Route path="/google-callback" element={<GoogleCallback />} />
 
       {/* User routes */}

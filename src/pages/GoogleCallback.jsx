@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { apiFetch } from '../api.js'
 
 export default function GoogleCallback() {
   const location = useLocation();
@@ -12,22 +13,35 @@ export default function GoogleCallback() {
     const token = searchParams.get('token');
 
     if (token) {
-      try {
-        const payloadBase64 = token.split('.')[1];
-        const payloadDecoded = decodeURIComponent(
-          atob(payloadBase64)
-            .split('')
-            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join('')
-        );
-        const user = JSON.parse(payloadDecoded);
-        
-        setSession(user, token);
-        navigate(user.role === 'admin' ? '/admin/dashboard' : '/dashboard', { replace: true });
-      } catch (err) {
-        console.error('Failed to parse token', err);
-        navigate('/login?error=invalid_token', { replace: true });
-      }
+      // Store token first, then ask backend to validate and return the canonical user record
+      (async () => {
+        try {
+          localStorage.setItem('helpdesk_token', token);
+
+          // Fetch verified user from backend (apiFetch reads token from localStorage)
+          const resp = await apiFetch('/api/auth/me');
+          if (!resp.ok) {
+            localStorage.removeItem('helpdesk_token');
+            navigate('/login?error=invalid_token', { replace: true });
+            return;
+          }
+          const data = await resp.json();
+          const user = data.user;
+
+          if (!user) {
+            localStorage.removeItem('helpdesk_token');
+            navigate('/login?error=no_user', { replace: true });
+            return;
+          }
+
+          setSession(user, token);
+          navigate(user.role === 'admin' ? '/admin/dashboard' : '/dashboard', { replace: true });
+        } catch (err) {
+          console.error('Failed to validate token with backend', err);
+          localStorage.removeItem('helpdesk_token');
+          navigate('/login?error=invalid_token', { replace: true });
+        }
+      })();
     } else {
       navigate('/login?error=no_token', { replace: true });
     }

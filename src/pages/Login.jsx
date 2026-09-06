@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { Target, Eye, EyeOff, User, Hexagon, CheckCircle2, ArrowRight, Sun, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
@@ -8,17 +9,12 @@ export default function Login() {
   const { login, quickLogin, error: authError, user } = useAuth()
   const { dark, toggle } = useTheme()
   const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [previewRole, setPreviewRole] = useState('admin')
-
-  useEffect(() => {
-    if (user) {
-      navigate(user.role === 'admin' ? '/admin/dashboard' : '/dashboard', { replace: true })
-    }
-  }, [user, navigate])
 
   const validateEmail = (email) => {
     return String(email)
@@ -175,6 +171,11 @@ export default function Login() {
             {(validationError || authError) && (
               <p className="mb-4 text-sm font-medium text-red-500">{validationError || authError}</p>
             )}
+
+            {/* show account created message if redirected from registration */}
+            {new URLSearchParams(location.search).get('created') === '1' && (
+              <p className="mb-4 text-sm font-medium text-green-600">Account created successfully. You can now sign in.</p>
+            )}
             
             <button
               type="submit"
@@ -185,14 +186,23 @@ export default function Login() {
             {/* Google Login */}
             <button
               type="button"
-              className="mt-2.5 w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white transition-colors hover:bg-red-700 shadow-sm"
-              onClick={() => {
-                const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-                window.location.href = `${apiBase}/api/auth/google`;
-              }}
+              className="mt-2.5 w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white transition-colors hover:bg-red-700 shadow-sm flex items-center justify-center gap-3"
+              onClick={() => { window.location.href = 'http://localhost:5000/api/auth/google'; }}
             >
-              Sign in with Google
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48" aria-hidden>
+                <path fill="#EA4335" d="M24 9.5c3.9 0 7.1 1.4 9.5 3.6l7-7C36.9 2.9 30.8 0 24 0 14.7 0 6.9 5.6 3 13.7l8.3 6.5C13.6 15 18.4 9.5 24 9.5z"/>
+                <path fill="#34A853" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 2.7-2 5-4.4 6.6l6.9 5.3C44.6 37.7 46.5 31.8 46.5 24.5z"/>
+                <path fill="#4A90E2" d="M10.3 29.9c-1.2-2.7-1.9-5.6-1.9-8.6s.7-5.9 1.9-8.6L3 6.2C.9 10.3 0 14.9 0 19.8s.9 9.5 3 13.6l7.3-3.5z"/>
+                <path fill="#FBBC05" d="M24 48c6.5 0 12-2.1 16.1-5.8l-7.7-6.1C30.8 36.6 27.6 38 24 38c-5.6 0-10.4-5.5-12.7-11.9L3 30.3C6.9 38.4 14.7 44 24 44z"/>
+              </svg>
+              <span>Sign in with Google</span>
             </button>
+
+            <div className="mt-4 text-center">
+              <Link id="create-account-link" to="/register" className="text-sm font-semibold text-brand-500 hover:text-brand-600">
+                Create account
+              </Link>
+            </div>
           </form>
         </div>
         
