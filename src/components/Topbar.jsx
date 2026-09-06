@@ -46,8 +46,12 @@ export default function Topbar({ title, subtitle, onOpenMobileMenu }) {
           <p className="text-sm font-semibold text-ink">{user?.name}</p>
           <p className="text-xs capitalize text-ink-light">{user?.role}</p>
         </div>
-        <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-brand-500/10 font-display text-xs sm:text-sm font-bold text-brand-500">
-          {initials(user?.name)}
+        <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-brand-500/10 font-display text-xs sm:text-sm font-bold text-brand-500 overflow-hidden">
+          {user?.avatar ? (
+            <img src={user.avatar} alt="avatar" className="h-full w-full object-cover" />
+          ) : (
+            <span className="block w-full text-center">{initials(user?.name)}</span>
+          )}
         </div>
       </div>
     </header>
