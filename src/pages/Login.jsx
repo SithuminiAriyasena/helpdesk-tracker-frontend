@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Target, Eye, EyeOff, User, Hexagon, CheckCircle2, ArrowRight, Sun, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -13,6 +13,12 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [previewRole, setPreviewRole] = useState('admin')
+
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === 'admin' ? '/admin/dashboard' : '/dashboard', { replace: true })
+    }
+  }, [user, navigate])
 
   const validateEmail = (email) => {
     return String(email)
@@ -180,7 +186,10 @@ export default function Login() {
             <button
               type="button"
               className="mt-2.5 w-full rounded-xl bg-red-600 py-3 text-sm font-bold text-white transition-colors hover:bg-red-700 shadow-sm"
-              onClick={() => { window.location.href = 'http://localhost:5000/api/auth/google'; }}
+              onClick={() => {
+                const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+                window.location.href = `${apiBase}/api/auth/google`;
+              }}
             >
               Sign in with Google
             </button>

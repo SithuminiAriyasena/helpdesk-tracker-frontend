@@ -81,7 +81,7 @@ export function TicketProvider({ children }) {
         method: 'POST',
         body: JSON.stringify({
           title: ticket.subject,
-          description: ticket.subject,
+          description: ticket.description || ticket.subject,
           priority: ticket.priority || 'Normal',
           category: ticket.category || 'General',
           requestedBy: ticket.requester || 'User'
