@@ -237,7 +237,7 @@ export default function Home() {
           {/* Left — copy */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-violet-400 mb-4">One board to rule them all</p>
-            <h2 className="text-4xl font-extrabold text-white leading-tight mb-6">
+            <h2 className="text-4xl font-extrabold text-white leading-tight mb-6 emph">
               Every open ticket, ranked by<br />
               <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">what breaches first.</span>
             </h2>
@@ -253,7 +253,7 @@ export default function Home() {
                 'Priority levels: Urgent, High, Normal, Low',
                 'One-click status updates for faster resolution',
               ].map(point => (
-                <li key={point} className="flex items-start gap-3 text-sm text-slate-300">
+                <li key={point} className="flex items-start gap-3 text-sm emph">
                   <span className="mt-1 h-4 w-4 shrink-0 rounded-full bg-violet-500/20 flex items-center justify-center">
                     <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
                   </span>
@@ -384,7 +384,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-violet-400 mb-3">Why teams love it</p>
-            <h2 className="text-4xl font-extrabold text-white">Everything you need to run a<br />world-class help desk</h2>
+            <h2 className="text-4xl font-extrabold text-white emph">Everything you need to run a<br />world-class help desk</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURES.map(({ icon: Icon, title, desc }) => (
@@ -395,7 +395,7 @@ export default function Home() {
                 <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600/40 to-indigo-600/40 group-hover:from-violet-600/60 group-hover:to-indigo-600/60 transition-all">
                   <Icon size={20} className="text-violet-300" />
                 </div>
-                <h3 className="font-bold text-white mb-2">{title}</h3>
+                <h3 className="font-bold text-white mb-2 emph">{title}</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
               </div>
             ))}

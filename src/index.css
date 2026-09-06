@@ -5,20 +5,16 @@
 /* ── Light theme tokens (default) ──────────────── */
 :root {
   --color-ink: #0f172a;
-  /* stronger secondary text for light mode for better readability */
-  --color-ink-light: #475569; /* darker slate */
+  --color-ink-light: #64748b;
   --color-surface: #ffffff;
-  /* slightly deeper canvas to increase contrast with white cards */
-  --color-canvas: #f1f5f9;
-  --color-line: #cbd5e1;
+  --color-canvas: #f8fafc;
+  --color-line: #e2e8f0;
   --color-status-openBg: #FEF3E2;
   --color-status-progressBg: #E9F1FE;
   --color-status-resolvedBg: #E6F8F1;
-  /* status text colors for pills and badges */
-  --color-status-open: #92400e; /* amber-700 */
-  --color-status-progress: #1e40af; /* blue-800 */
-  --color-status-resolved: #047857; /* emerald-700 */
-  --shadow-card: 0 4px 10px rgba(16,24,40,0.04), 0 6px 24px rgba(16,24,40,0.06);
+  --shadow-card: 0 1px 2px rgba(13,17,32,0.04), 0 1px 12px rgba(13,17,32,0.05);
+  /* emphasis color used for specific phrases; defaults to normal ink in light mode */
+  --emph-color: var(--color-ink);
 }
 
 /* ── Dark theme tokens ─────────────────────────── */
@@ -31,10 +27,9 @@ html.dark {
   --color-status-openBg: rgba(245,158,11,0.15);
   --color-status-progressBg: rgba(59,130,246,0.15);
   --color-status-resolvedBg: rgba(16,185,129,0.15);
-  --color-status-open: #ffdba8; /* lighter amber for dark bg */
-  --color-status-progress: #bfdbfe; /* light blue */
-  --color-status-resolved: #bbf7d0; /* light green */
   --shadow-card: 0 1px 2px rgba(0,0,0,0.2), 0 1px 12px rgba(0,0,0,0.15);
+  /* force emphasized phrases to black in dark mode as requested */
+  --emph-color: #000000;
 }
 
 html {
@@ -68,6 +63,11 @@ body {
 :focus-visible {
   outline: 2px solid #4F46E5;
   outline-offset: 2px;
+}
+
+/* Use this class on phrases that should use the emphasis color (theme-aware). */
+.emph {
+  color: var(--emph-color) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
