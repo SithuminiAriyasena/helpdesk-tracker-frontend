@@ -20,6 +20,8 @@ const mapUserToFrontend = (u) => ({
   id: u.id,
   name: u.name,
   email: u.email,
+  avatar: u.avatar || null,
+  department: u.department || null,
   role: u.role,
   createdAt: u.created_at,
   deletedAt: u.deleted_at

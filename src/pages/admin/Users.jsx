@@ -212,8 +212,12 @@ export default function AdminUsers() {
                     <tr key={u.id} className="transition-colors hover:bg-canvas/60">
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500/10 font-display text-xs font-bold text-brand-500">
-                            {initials(u.name)}
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500/10 font-display text-xs font-bold text-brand-500 overflow-hidden">
+                            {u.avatar ? (
+                              <img src={u.avatar} alt={u.name} className="h-full w-full object-cover" />
+                            ) : (
+                              initials(u.name)
+                            )}
                           </div>
                           <span className="font-medium text-ink">{u.name}</span>
                         </div>
