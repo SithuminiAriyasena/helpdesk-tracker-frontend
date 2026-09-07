@@ -237,11 +237,11 @@ export default function Home() {
           {/* Left — copy */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-violet-400 mb-4">One board to rule them all</p>
-            <h2 className="text-4xl font-extrabold text-white leading-tight mb-6 emph">
+            <h2 className={`text-4xl font-extrabold leading-tight mb-6 emph ${dark ? 'text-white' : 'text-slate-900'}`}>
               Every open ticket, ranked by<br />
               <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">what breaches first.</span>
             </h2>
-            <p className="text-slate-400 text-lg leading-relaxed max-w-md">
+            <p className={`text-lg leading-relaxed max-w-md ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
               Agents work from one board instead of switching between inbox,
               spreadsheet, and chat. Priority is always visible — nothing slips through.
             </p>
@@ -253,7 +253,7 @@ export default function Home() {
                 'Priority levels: Urgent, High, Normal, Low',
                 'One-click status updates for faster resolution',
               ].map(point => (
-                <li key={point} className="flex items-start gap-3 text-sm emph">
+                <li key={point} className={`flex items-start gap-3 text-sm emph ${dark ? 'text-slate-200' : 'text-slate-700'}`}>
                   <span className="mt-1 h-4 w-4 shrink-0 rounded-full bg-violet-500/20 flex items-center justify-center">
                     <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
                   </span>
@@ -384,19 +384,19 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-violet-400 mb-3">Why teams love it</p>
-            <h2 className="text-4xl font-extrabold text-white emph">Everything you need to run a<br />world-class help desk</h2>
+            <h2 className={`text-4xl font-extrabold emph ${dark ? 'text-white' : 'text-slate-900'}`}>Everything you need to run a<br />world-class help desk</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURES.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="group rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 hover:border-violet-500/40 transition-all hover:-translate-y-1"
+                className={`group rounded-2xl border p-6 transition-all hover:-translate-y-1 ${dark ? 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-violet-500/40' : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-violet-500/40'}`}
               >
                 <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600/40 to-indigo-600/40 group-hover:from-violet-600/60 group-hover:to-indigo-600/60 transition-all">
                   <Icon size={20} className="text-violet-300" />
                 </div>
-                <h3 className="font-bold text-white mb-2 emph">{title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
+                <h3 className={`font-bold mb-2 emph ${dark ? 'text-white' : 'text-slate-900'}`}>{title}</h3>
+                <p className={`text-sm leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{desc}</p>
               </div>
             ))}
           </div>
@@ -557,7 +557,7 @@ export default function Home() {
         {dark && <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#3730a3_0%,_transparent_70%)] opacity-30" />}
 
         <div className="relative mx-auto max-w-3xl text-center">
-          <h2 className={`text-3xl md:text-4xl font-extrabold ${textPrimary} leading-snug mb-8`}>
+          <h2 className={`text-3xl md:text-4xl font-extrabold leading-snug mb-8 ${dark ? 'text-white' : 'text-slate-900'}`}>
             Want to explore how you can put your help desk
             operations on auto-pilot with HelpDesk Tracker?
             <span className="text-yellow-500"> Talk to our experts today!</span>
@@ -603,7 +603,7 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2.28a2 2 0 011.897 1.368l.758 2.275a2 2 0 01-.45 2.07L8.34 9.858a16.016 16.016 0 006.802 6.802l1.145-1.145a2 2 0 012.07-.45l2.275.758A2 2 0 0121 17.72V20a2 2 0 01-2 2h-1C9.716 22 2 14.284 2 5V4a2 2 0 012-2h-.001z"/>
             </svg>
             To reach support, call&nbsp;
-            <strong className="text-white text-base tracking-widest">+94 117 551 111</strong>
+            <strong className={`${dark ? 'text-white' : 'text-slate-900'} text-base tracking-widest`}>+94 117 551 111</strong>
           </span>
         </div>
 
